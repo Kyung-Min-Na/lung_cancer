@@ -1,30 +1,30 @@
-#csvÆÄÀÏºÒ·¯¿À±â
-cancers=read.csv("C:/Users/nkm11/Desktop/lab/´ëÇÑÀÇ·áÁ¤º¸ÇĞÈ¸/¾ÏÀÓ»ó_¶óÀÌºê·¯¸®_ÇÕ¼ºµ¥ÀÌÅÍ_train_test_set(Æó¾Ï)/ÇĞ½Àµ¥ÀÌÅÍ_Æó¾Ï.csv", header = T, sep=",", fileEncoding = "euc-kr")
+#csvíŒŒì¼ë¶ˆëŸ¬ì˜¤ê¸°
+cancers=read.csv("./Dataset/train_lungcancer.csv", header = T, sep=",", fileEncoding = "euc-kr")
 
-#»ç¿ëÇÒ ¿­ °¡Á®¿À±â (º´±âstage, Èí¿¬¿©ºÎ, µîµî)
+#ì‚¬ìš©í•  ì—´ ê°€ì ¸ì˜¤ê¸° (ë³‘ê¸°stage, í¡ì—°ì—¬ë¶€, ë“±ë“±)
 lung_cancer=cancers[, c(2:26, 29:34)]
 
-#Èí¿¬ÀÚ¿Í ºñÈí¿¬ÀÚ µÎ °³·Î ±¸ºĞ
+#í¡ì—°ìì™€ ë¹„í¡ì—°ì ë‘ ê°œë¡œ êµ¬ë¶„
 lung_cancer$Smoke = ifelse(lung_cancer$Smoke == 0, 0, 1)
 
-# EGFR.mutation.Detection ¿­¿¡¼­ 99 °ªÀ» NA·Î º¯È¯
+# EGFR.mutation.Detection ì—´ì—ì„œ 99 ê°’ì„ NAë¡œ ë³€í™˜
 #lung_cancer$EGFR.mutation.Detection[lung_cancer$EGFR.mutation.Detection == 99] <- NA
 
-#À½ÁÖ¿©ºÎ ¿­¿¡¼­ 99 °ªÀ» NA·Î º¯È¯
+#ìŒì£¼ì—¬ë¶€ ì—´ì—ì„œ 99 ê°’ì„ NAë¡œ ë³€í™˜
 #lung_cancer$Type.of.Drink[lung_cancer$Type.of.Drink == 99] <- NA
 
-#IV°ªÀÌ NA°¡ ³ª¿ÀÁö ¾Ê°Ô ÀüÃ³¸®
+#IVê°’ì´ NAê°€ ë‚˜ì˜¤ì§€ ì•Šê²Œ ì „ì²˜ë¦¬
 #lung_cancer = lung_cancer[complete.cases(lung_cancer), ]
 
 View(lung_cancer)
 
-#TNMº¯¼ö º´ÇÕ ¹× Á¤¸®
+#TNMë³€ìˆ˜ ë³‘í•© ë° ì •ë¦¬
 lung_cancer$T1 = ifelse(lung_cancer$T1 == 1 | lung_cancer$T1a == 1 | lung_cancer$T1b == 1 | lung_cancer$T1c == 1, 1, 0)
 lung_cancer$T2 = ifelse(lung_cancer$T2 == 1 | lung_cancer$T2a == 1 | lung_cancer$T2b == 1, 1, 0)
 lung_cancer$M = ifelse(lung_cancer$M1a == 1 | lung_cancer$M1b == 1 | lung_cancer$M1c == 1, 1, 0)
 lung_cancer=subset(lung_cancer, select = -c(T0, T1a, T1b, T1c, T2a, T2b, M1a, M1b, M1c))
  
-#I, II, III, IV¿­·Î ¹­±â
+#I, II, III, IVì—´ë¡œ ë¬¶ê¸°
 lung_cancer$I = ifelse(lung_cancer$M == 0 & lung_cancer$T1 == 1 & lung_cancer$T2 == 0 & lung_cancer$T3 == 0 & lung_cancer$T4 == 0 & lung_cancer$N1 == 1 & lung_cancer$N2 == 0 & lung_cancer$N3 == 0, 1,
                ifelse(lung_cancer$M == 0 &lung_cancer$T2 == 1 & lung_cancer$T3 == 0 & lung_cancer$T4 == 0 & lung_cancer$N1 == 0 & lung_cancer$N2 == 0 & lung_cancer$N3 == 0, 1, 0))
 
@@ -43,20 +43,20 @@ lung_cancer$III = ifelse(lung_cancer$M == 0 & lung_cancer$T1 == 1 & lung_cancer$
                                                                          ifelse(lung_cancer$M == 0 & lung_cancer$T4 == 1, 1, 0)))))))))
 
 lung_cancer$IV = ifelse(lung_cancer$M == 1, 1, 0)
-#count¿¡ i ii iii iv°ªÀÌ 1ÀÎ °æ¿ì 1·Î ÀÔ·Â
+#countì— i ii iii ivê°’ì´ 1ì¸ ê²½ìš° 1ë¡œ ì…ë ¥
 lung_cancer$count = apply(lung_cancer[, c("I", "II", "III", "IV")], 1, function(x) sum(x > 0))
-#tumor°¡ ¹ß°ßµÇÁö ¾ÊÀº °ª »èÁ¦
+#tumorê°€ ë°œê²¬ë˜ì§€ ì•Šì€ ê°’ ì‚­ì œ
 lung_cancer=lung_cancer[!(lung_cancer$count == 0), ]
 
 
-#Èí¿¬ ¿©ºÎ(¿ø-ÇÖ ÀÎÄÚµù ÇÏ¸é IV°ªÀÌ ¾È³ª¿È,¾Æ·¡ÀÇ ÄÚµå¸¦ »ç¿ëÇÏÀÚ.)
+#í¡ì—° ì—¬ë¶€(ì›-í•« ì¸ì½”ë”© í•˜ë©´ IVê°’ì´ ì•ˆë‚˜ì˜´,ì•„ë˜ì˜ ì½”ë“œë¥¼ ì‚¬ìš©í•˜ì.)
 #lung_cancer = lung_cancer %>%
 #  mutate(Smoke0 = ifelse(Smoke == 0, 1, 0),
 #         Smoke1 = ifelse(Smoke == 1, 1, 0),
 #         Smoke2 = ifelse(Smoke == 2, 1, 0)) %>% select(-Smoke)
 
 
-#BMI Áö¼ö ¿­ »ı¼º, ½ÅÀå, Ã¼Áß TX»èÁ¦
+#BMI ì§€ìˆ˜ ì—´ ìƒì„±, ì‹ ì¥, ì²´ì¤‘ TXì‚­ì œ
 lung_cancer$BMI=lung_cancer$Weight / ((lung_cancer$Height/100) ^2 )
 lung_cancer=subset(lung_cancer, select = -c(Height, Weight, TX, T1, T2, T3, T4, N1, N2, N3, M, count))
 
@@ -64,20 +64,20 @@ lung_cancer=subset(lung_cancer, select = -c(Height, Weight, TX, T1, T2, T3, T4, 
 #lung_cancer = scale(lung_cancer[, c("AGE", "BMI")])
 #lung_cancer = scale(lung_cancer[, c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy")])
 
-#CoxÈ¸±ÍºĞ¼®
+#CoxíšŒê·€ë¶„ì„
 install.packages("survival")
 library(survival)
 cox_mod=coxph(Surv(Survival.period, Death) ~ AGE + Adenocarcinoma + Large.cell.carcinoma + Squamous.cell.carcinoma + I + II + III + IV + Type.of.Drink + Smoke + BMI + EGFR.mutation.Detection + Operation + Chemotherapy + Radiation.Therapy, data = lung_cancer)
 summary(cox_mod)
 
-#½Ã°¢È­
-# È÷½ºÅä±×·¥ (¿¹½Ã)
+#ì‹œê°í™”
+# íˆìŠ¤í† ê·¸ë¨ (ì˜ˆì‹œ)
 hist(lung_cancer$AGE, main = "Distribution of AGE", xlab = "Age")
 
-# ¹Ú½º ÇÃ·Ô (¿¹½Ã)
+# ë°•ìŠ¤ í”Œë¡¯ (ì˜ˆì‹œ)
 boxplot(lung_cancer$BMI, main = "Boxplot of BMI", ylab = "BMI")
 
-# ¿ÀÁî ºñÀ² ±×·¡ÇÁ(½Ç»ç¿ë¿¹½Ã)
+# ì˜¤ì¦ˆ ë¹„ìœ¨ ê·¸ë˜í”„(ì‹¤ì‚¬ìš©ì˜ˆì‹œ)
 install.packages("ggplot2")
 library(ggplot2)
 
@@ -86,7 +86,7 @@ ggplot(lung_cancer, aes(x = factor(Smoke), y = exp(coef(cox_mod)["Smoke"]), fill
   scale_fill_manual(values = c("blue", "red")) +
   labs(x = "Smoking", y = "Odds Ratio", title = "Odds Ratio by Smoking")
 
-# °á°ú µ¥ÀÌÅÍ ÇÁ·¹ÀÓ »ı¼º (¿¹½Ã µ¥ÀÌÅÍ)
+# ê²°ê³¼ ë°ì´í„° í”„ë ˆì„ ìƒì„± (ì˜ˆì‹œ ë°ì´í„°)
 results <- data.frame(
   Variable = c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy"),
   HR = c(1.0001825, 0.9769715, 1.0456119, 1.0034341, 1.0139617, 0.9493408, 0.9416512, NA, 1.0001306, 0.8777377, 1.0043615, 0.9995443, 0.9551366, 1.0264522, 1.0199076),
@@ -94,7 +94,7 @@ results <- data.frame(
   CI_Upper = c(1.0035, 1.0788, 1.1748, 1.1101, 1.1662, 1.0863, 1.0536, NA, 1.0011, 0.9805, 1.0120, 1.0005, 1.0479, 1.1253, 1.1321)
 )
 
-# Æ÷·¹½ºÆ® ÇÃ·Ô »ı¼º
+# í¬ë ˆìŠ¤íŠ¸ í”Œë¡¯ ìƒì„±
 ggplot(results, aes(x = HR, xmin = CI_Lower, xmax = CI_Upper, y = Variable)) +
   geom_vline(xintercept = 1, linetype = "dashed", color = "gray") +
   geom_point(size = 3) +
@@ -103,8 +103,7 @@ ggplot(results, aes(x = HR, xmin = CI_Lower, xmax = CI_Upper, y = Variable)) +
   labs(x = "Hazard Ratio (HR)", y = "Variable", title = "Forest Plot") +
   theme_minimal()
 
-#ÀÌ°ÇµÇ°ÚÁö?
-# °á°ú µ¥ÀÌÅÍ ÇÁ·¹ÀÓ »ı¼º
+# ê²°ê³¼ ë°ì´í„° í”„ë ˆì„ ìƒì„±
 results <- data.frame(
   Variable = c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy"),
   HR = c(1.0001825, 0.9769715, 1.0456119, 1.0034341, 1.0139617, 0.9493408, 0.9416512, NA, 1.0001306, 0.8777377, 1.0043615, 0.9995443, 0.9551366, 1.0264522, 1.0199076),
@@ -112,10 +111,10 @@ results <- data.frame(
   CI_Upper = c(1.0035, 1.0788, 1.1748, 1.1101, 1.1662, 1.0863, 1.0536, NA, 1.0011, 0.9805, 1.0120, 1.0005, 1.0479, 1.1253, 1.1321)
 )
 
-# NA °ªÀ» °¡Áö´Â Çà Á¦°Å
+# NA ê°’ì„ ê°€ì§€ëŠ” í–‰ ì œê±°
 results <- results[complete.cases(results), ]
 
-# CI ¿ÀÂ÷ ¸·´ë »ı¼º
+# CI ì˜¤ì°¨ ë§‰ëŒ€ ìƒì„±
 library(ggplot2)
 
 ggplot(results, aes(x = HR, y = Variable)) +
@@ -125,8 +124,8 @@ ggplot(results, aes(x = HR, y = Variable)) +
   labs(x = "Hazard Ratio (HR)", y = "Variable", title = "Confidence Interval (CI)") +
   theme_minimal()
 
-#º¯¼ö¸í ¼ø¼­¸¦ Ç¥¿Í °°°Ô
-# °á°ú µ¥ÀÌÅÍ ÇÁ·¹ÀÓ »ı¼º
+#ë³€ìˆ˜ëª… ìˆœì„œë¥¼ í‘œì™€ ê°™ê²Œ
+# ê²°ê³¼ ë°ì´í„° í”„ë ˆì„ ìƒì„±
 results <- data.frame(
   Variable = c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy"),
   HR = c(1.0001825, 0.9769715, 1.0456119, 1.0034341, 1.0139617, 0.9493408, 0.9416512, NA, 1.0001306, 0.8777377, 1.0043615, 0.9995443, 0.9551366, 1.0264522, 1.0199076),
@@ -134,13 +133,13 @@ results <- data.frame(
   CI_Upper = c(1.0035, 1.0788, 1.1748, 1.1101, 1.1662, 1.0863, 1.0536, NA, 1.0011, 0.9805, 1.0120, 1.0005, 1.0479, 1.1253, 1.1321)
 )
 
-# NA °ªÀ» °¡Áö´Â Çà Á¦°Å
+# NA ê°’ì„ ê°€ì§€ëŠ” í–‰ ì œê±°
 results <- results[complete.cases(results), ]
 
-# º¯¼ö¸í ¼ø¼­ ÁöÁ¤
+# ë³€ìˆ˜ëª… ìˆœì„œ ì§€ì •
 variable_order <- rev(c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy"))
 
-# º¯¼ö¸í ¼ø¼­ ¹İ¿µÇÏ¿© ½Ã°¢È­
+# ë³€ìˆ˜ëª… ìˆœì„œ ë°˜ì˜í•˜ì—¬ ì‹œê°í™”
 library(ggplot2)
 
 ggplot(results, aes(x = HR, y = factor(Variable, levels = variable_order))) +
@@ -150,87 +149,13 @@ ggplot(results, aes(x = HR, y = factor(Variable, levels = variable_order))) +
   labs(x = "Hazard Ratio (HR)", y = "Variable", title = "Confidence Interval (CI)") +
   theme_minimal()
 
-
-
-
-
-
-
-
-
-#°ËÁõµ¥ÀÌÅÍ
-cancers1=read.csv("C:/Users/nkm11/Desktop/´ëÇÑÀÇ·áÁ¤º¸ÇĞÈ¸/¾ÏÀÓ»ó_¶óÀÌºê·¯¸®_ÇÕ¼ºµ¥ÀÌÅÍ_train_test_set(Æó¾Ï)/°ËÁõµ¥ÀÌÅÍ_Æó¾Ï.csv", header = T, sep=",", fileEncoding = "euc-kr")
-
-#»ç¿ëÇÒ ¿­ °¡Á®¿À±â (º´±âstage, Èí¿¬¿©ºÎ, µîµî)
-lung_cancer1=cancers1[, c(2:26, 29:34)]
-
-#Èí¿¬ÀÚ¿Í ºñÈí¿¬ÀÚ µÎ °³·Î ±¸ºĞ
-lung_cancer1$Smoke = ifelse(lung_cancer1$Smoke == 0, 0, 1)
-
-# EGFR.mutation.Detection ¿­¿¡¼­ 99 °ªÀ» NA·Î º¯È¯
-#lung_cancer$EGFR.mutation.Detection[lung_cancer$EGFR.mutation.Detection == 99] <- NA
-
-#À½ÁÖ¿©ºÎ ¿­¿¡¼­ 99 °ªÀ» NA·Î º¯È¯
-#lung_cancer$Type.of.Drink[lung_cancer$Type.of.Drink == 99] <- NA
-
-#IV°ªÀÌ NA°¡ ³ª¿ÀÁö ¾Ê°Ô ÀüÃ³¸®
-#lung_cancer = lung_cancer[complete.cases(lung_cancer), ]
-
-View(lung_cancer1)
-
-#TNMº¯¼ö º´ÇÕ ¹× Á¤¸®
-lung_cancer1$T1 = ifelse(lung_cancer1$T1 == 1 | lung_cancer1$T1a == 1 | lung_cancer1$T1b == 1 | lung_cancer1$T1c == 1, 1, 0)
-lung_cancer1$T2 = ifelse(lung_cancer1$T2 == 1 | lung_cancer1$T2a == 1 | lung_cancer1$T2b == 1, 1, 0)
-lung_cancer1$M = ifelse(lung_cancer1$M1a == 1 | lung_cancer1$M1b == 1 | lung_cancer1$M1c == 1, 1, 0)
-lung_cancer1=subset(lung_cancer1, select = -c(T0, T1a, T1b, T1c, T2a, T2b, M1a, M1b, M1c))
-
-#I, II, III, IV¿­·Î ¹­±â
-lung_cancer1$I = ifelse(lung_cancer1$M == 0 & lung_cancer1$T1 == 1 & lung_cancer1$T2 == 0 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 1 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1,
-                       ifelse(lung_cancer1$M == 0 &lung_cancer1$T2 == 1 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 0 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1, 0))
-
-lung_cancer1$II = ifelse(lung_cancer1$M == 0 & lung_cancer1$T1 == 1 & lung_cancer1$T2 == 0 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 0 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1,
-                        ifelse(lung_cancer1$M == 0 &lung_cancer1$T2 == 1 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 1 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1,
-                               ifelse(lung_cancer1$M == 0 &lung_cancer1$T3 == 1 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 0 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1, 0)))
-
-lung_cancer1$III = ifelse(lung_cancer1$M == 0 & lung_cancer1$T1 == 1 & lung_cancer1$T2 == 0 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N2 == 1 & lung_cancer1$N3 == 0, 1,
-                         ifelse(lung_cancer1$M == 0 & lung_cancer1$T1 == 1 & lung_cancer1$T2 == 0 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N3 == 1, 1,
-                                ifelse(lung_cancer1$M == 0 & lung_cancer1$T2 == 1 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N2 == 1 & lung_cancer1$N3 == 0, 1,
-                                       ifelse(lung_cancer1$M == 0 & lung_cancer1$T2 == 1 & lung_cancer1$T3 == 0 & lung_cancer1$T4 == 0 & lung_cancer1$N3 == 1, 1,
-                                              ifelse(lung_cancer1$M == 0 & lung_cancer1$T3 == 1 & lung_cancer1$T4 == 0 & lung_cancer1$N1 == 1 & lung_cancer1$N2 == 0 & lung_cancer1$N3 == 0, 1,
-                                                     ifelse(lung_cancer1$M == 0 & lung_cancer1$T3 == 1 & lung_cancer1$T4 == 0 & lung_cancer1$N2 == 1 & lung_cancer1$N3 == 0, 1,
-                                                            ifelse(lung_cancer1$M == 0 & lung_cancer1$T3 == 1 & lung_cancer1$T4 == 0 & lung_cancer1$N3 == 1, 1,
-                                                                   ifelse(lung_cancer1$M == 0 & lung_cancer1$T3 == 1 & lung_cancer1$T4 == 0 & lung_cancer1$N2 == 1 & lung_cancer1$N3 == 0, 1,
-                                                                          ifelse(lung_cancer1$M == 0 & lung_cancer1$T4 == 1, 1, 0)))))))))
-
-lung_cancer1$IV = ifelse(lung_cancer1$M == 1, 1, 0)
-#count¿¡ i ii iii iv°ªÀÌ 1ÀÎ °æ¿ì 1·Î ÀÔ·Â
-lung_cancer1$count = apply(lung_cancer1[, c("I", "II", "III", "IV")], 1, function(x) sum(x > 0))
-#tumor°¡ ¹ß°ßµÇÁö ¾ÊÀº °ª »èÁ¦
-lung_cancer1=lung_cancer1[!(lung_cancer1$count == 0), ]
-
-
-#Èí¿¬ ¿©ºÎ(¿ø-ÇÖ ÀÎÄÚµù ÇÏ¸é IV°ªÀÌ ¾È³ª¿È,¾Æ·¡ÀÇ ÄÚµå¸¦ »ç¿ëÇÏÀÚ.)
-#lung_cancer = lung_cancer %>%
-#  mutate(Smoke0 = ifelse(Smoke == 0, 1, 0),
-#         Smoke1 = ifelse(Smoke == 1, 1, 0),
-#         Smoke2 = ifelse(Smoke == 2, 1, 0)) %>% select(-Smoke)
-
-
-#BMI Áö¼ö ¿­ »ı¼º, ½ÅÀå, Ã¼Áß TX»èÁ¦
-lung_cancer1$BMI=lung_cancer1$Weight / ((lung_cancer1$Height/100) ^2 )
-lung_cancer1=subset(lung_cancer1, select = -c(Height, Weight, TX, T1, T2, T3, T4, N1, N2, N3, M, count))
-
-#data scaling
-#lung_cancer = scale(lung_cancer[, c("AGE", "BMI")])
-#lung_cancer = scale(lung_cancer[, c("AGE", "Adenocarcinoma", "Large.cell.carcinoma", "Squamous.cell.carcinoma", "I", "II", "III", "IV", "Type.of.Drink", "Smoke", "BMI", "EGFR.mutation.Detection", "Operation", "Chemotherapy", "Radiation.Therapy")])
-
-#CoxÈ¸±ÍºĞ¼®
+#CoxíšŒê·€ë¶„ì„
 install.packages("survival")
 library(survival)
 cox_mod1=coxph(Surv(Survival.period, Death) ~ AGE + Adenocarcinoma + Large.cell.carcinoma + Squamous.cell.carcinoma + I + II + III + IV + Type.of.Drink + Smoke + BMI + EGFR.mutation.Detection + Operation + Chemotherapy + Radiation.Therapy, data = lung_cancer1)
 summary(cox_mod1)
 
-#¸ğµ¨ºĞ¼® ÄÚµå?
+#ëª¨ë¸ë¶„ì„ ì½”ë“œ
 predictions = predict(cox_mod, newdata = lung_cancer1)
 head(predictions)
 
